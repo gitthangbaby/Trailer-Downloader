@@ -298,7 +298,7 @@ def main():
 
                 # Filter by year and title
                 if 'releasedate' in result and 'title' in result:
-                    if arguments['year'].lower() in result['releasedate'].lower() and matchTitle(arguments['title']) == matchTitle(unescape(result['title'])):
+                    if arguments['year'].lower() in result['releasedate'].lower() and matchTitle(arguments['title']) == matchTitle(unescape(result['title'])) and settings['resolution'] != 'none':
 
                         file = appleDownload('https://trailers.apple.com/'+result['location'], settings['resolution'], arguments['directory'], filename)
 
@@ -316,7 +316,7 @@ def main():
 
                     # Filter by year and title
                     if 'release_date' in result and 'title' in result:
-                        if arguments['year'].lower() in result['release_date'].lower() and matchTitle(arguments['title']) == matchTitle(result['title']):
+                        if arguments['year'].lower() in result['release_date'].lower() and matchTitle(arguments['title']) == matchTitle(result['title']) and settings['min_resolution'] != 'none':
 
                             # Find trailers for movie
                             videos = videosTMDB(result['id'], settings['lang'], settings['region'], settings['tmdb_api_key'])
