@@ -289,51 +289,49 @@ def main():
                 if filename[:-4] in name:
                     downloaded = True
 
-        # Search Apple for trailer
+        # Search YouTube for trailer
         if not downloaded:
-            search = searchApple(arguments['title'])
+            search = searchTMDB(arguments['title'], settings['tmdb_api_key'])
 
             # Iterate over search results
             for result in search['results']:
 
                 # Filter by year and title
-                if 'releasedate' in result and 'title' in result:
-                    if arguments['year'].lower() in result['releasedate'].lower() and matchTitle(arguments['title']) == matchTitle(unescape(result['title'])) and settings['resolution'] != 'none':
+                if 'release_date' in result and 'title' in result:
+                    if arguments['year'].lower() in result['release_date'].lower() and matchTitle(arguments['title']) == matchTitle(result['title']) and settings['min_resolution'] != 'none':
 
-                        file = appleDownload('https://trailers.apple.com/'+result['location'], settings['resolution'], arguments['directory'], filename)
+                        # Find trailers for movie
+                        videos = videosTMDB(result['id'], settings['lang'], settings['region'], settings['tmdb_api_key'])
 
-                        # Update downloaded status
-                        if file:
-                            downloaded = True
-                            break
+                        for item in videos['results']:
+                            if 'Trailer' in item['type'] and int(item['size']) >= int(settings['min_resolution']):
+                                video = 'https://www.youtube.com/watch?v='+item['key']
 
-            # Search YouTube for trailer
+                                # Download trailer from YouTube
+                                file = youtubeDownload(video, settings['min_resolution'], settings['max_resolution'], arguments['directory'], filename)
+
+                                # Update downloaded status
+                                if file:
+                                    downloaded = True
+                                    break
+            # Search Apple for trailer
             if not downloaded:
-                search = searchTMDB(arguments['title'], settings['tmdb_api_key'])
+                search = searchApple(arguments['title'])
 
                 # Iterate over search results
                 for result in search['results']:
 
                     # Filter by year and title
-                    if 'release_date' in result and 'title' in result:
-                        if arguments['year'].lower() in result['release_date'].lower() and matchTitle(arguments['title']) == matchTitle(result['title']) and settings['min_resolution'] != 'none':
+                    if 'releasedate' in result and 'title' in result:
+                        if arguments['year'].lower() in result['releasedate'].lower() and matchTitle(arguments['title']) == matchTitle(unescape(result['title'])) and settings['resolution'] != 'none':
 
-                            # Find trailers for movie
-                            videos = videosTMDB(result['id'], settings['lang'], settings['region'], settings['tmdb_api_key'])
+                            file = appleDownload('https://trailers.apple.com/'+result['location'], settings['resolution'], arguments['directory'], filename)
 
-                            for item in videos['results']:
-                                if 'Trailer' in item['type'] and int(item['size']) >= int(settings['min_resolution']):
-                                    video = 'https://www.youtube.com/watch?v='+item['key']
+                            # Update downloaded status
+                            if file:
+                                downloaded = True
+                                break
 
-                                    # Download trailer from YouTube
-                                    file = youtubeDownload(video, settings['min_resolution'], settings['max_resolution'], arguments['directory'], filename)
-
-                                    # Update downloaded status
-                                    if file:
-                                        downloaded = True
-                                        break
-
-                        break
 
             if downloaded:
                 print('\033[92mSUCCESS:\033[0m Trailer downloaded.')
