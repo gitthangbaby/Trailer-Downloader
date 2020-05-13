@@ -46,10 +46,11 @@ def main():
 
         # Get variables for the download script
         try:
-            directory = os.path.abspath(os.path.dirname(arguments['file']))
+            path = os.path.abspath(os.path.dirname(arguments['file']))
+            directory = os.path.basename(arguments['file'])
             title = os.path.basename(directory)[0:os.path.basename(directory).rfind('(')].strip()
             year = os.path.basename(directory)[os.path.basename(directory).rindex('(')+1:].split(')')[0].strip()
-        except:
+         except:
             print(arguments['file'])
             print('\033[93mWARNING:\033[0m Failed to extract title and year from radarr movie path. Skipping...')
             sys.exit()
